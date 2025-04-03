@@ -1,4 +1,4 @@
-package Tank;
+package src;
 
 import java.util.Scanner;
 import java.util.ArrayList;
@@ -250,44 +250,34 @@ public class CourseUI {
                     //Course variables
                     System.out.println("\n*** Make a course ***\n\n");
                     System.out.println("Title:\n");
-                    String courseTitle = input.next();
-                    input.nextLine();
+                    String courseTitle = input.nextLine();
                     System.out.println("Language:\n");
-                    String courseLanguage = input.next();
-                    input.nextLine();
+                    String courseLanguage = input.nextLine();
                     System.out.println("Author's Username:\n");
-                    String courseAuthor = input.next();
-                    input.nextLine();
+                    String courseAuthor = input.nextLine();
                     System.out.println("\nDate ('MM/DD/YY'):");
-                    String courseDate = input.next();
-                    input.nextLine();
+                    String courseDate = input.nextLine();
                     System.out.println("\nDifficulty:");
-                    String courseDifficulty = input.next();
-                    input.nextLine();
+                    String courseDifficulty = input.nextLine();
                     System.out.println("Summary: ");
-                    String courseSummary = input.next();
-                    input.nextLine();
+                    String courseSummary = input.nextLine();
                     //Module variables
                     
                     System.out.println("\n*** Add a module ***\n\n");
                     System.out.println("Module title:\n");
-                    String moduleTitle = input.next();
-                    input.nextLine();
+                    String moduleTitle = input.nextLine();
                     Module tempModule = new Module();
                     tempModule.setPrompt(moduleTitle);
                     // Lesson Variables
                     Lesson tempLesson = new Lesson("","","");
                     System.out.println("Lesson Title:\n");
-                    String lessonTitle = input.next();
-                    input.nextLine();
+                    String lessonTitle = input.nextLine();
                     tempLesson.setTitle(lessonTitle);
                     System.out.println("Write out the lesson content:\n");
-                    String lessonContent = input.next();
-                    input.nextLine();
+                    String lessonContent = input.nextLine();
                     tempLesson.setContents(lessonContent);
                     System.out.println("Lesson Number:\n");
-                    String lessonNumber = input.next();
-                    input.nextLine();
+                    String lessonNumber = input.nextLine();
                     tempLesson.setLessonNumber(lessonNumber);
                     
 
@@ -297,22 +287,28 @@ public class CourseUI {
                     //Quiz variables
                     System.out.println("\n*** Add a quiz ***\n\n");
                     System.out.println("Question:\n");
-                    String quizQuestion = input.next();
-                    input.nextLine();
+                    String quizQuestion = input.nextLine();
                     System.out.println("Option a.\n");
-                    String quizOptionA = input.next();
-                    input.nextLine();
+                    String quizOptionA = input.nextLine();
                     System.out.println("Option b.\n");
-                    String quizOptionB = input.next();
-                    input.nextLine();
+                    String quizOptionB = input.nextLine();
                     System.out.println("Option c.\n");
-                    String quizOptionC = input.next();
-                    input.nextLine();
+                    String quizOptionC = input.nextLine();
                     System.out.println("Option d.\n");
-                    String quizOptionD = input.next();
-                    input.nextLine();
+                    String quizOptionD = input.nextLine();
                     System.out.println("Correct Answer (this must be an integer, 1 = Option A, 2 = Option B, 3 = Option C, 4 = Option D)\n");
-                    int correctAnswer = input.nextInt();
+                    int correctAnswer;
+                    try {
+                        correctAnswer = Integer.parseInt(input.nextLine());
+                        if (correctAnswer < 1 || correctAnswer > 4) {
+                            System.out.println("Invalid choice (must be 1-4). Defaulting to 1.");
+                            correctAnswer = 1;
+                        }
+                    } catch (NumberFormatException e) {
+                        System.out.println("Invalid input. Defaulting to 1.");
+                        correctAnswer = 1;
+                    }
+                    
                     Quiz tempQuiz = new Quiz();
                     ArrayList<String> questionChoices = new ArrayList<String>();
                     questionChoices.add(quizOptionA);
@@ -323,6 +319,24 @@ public class CourseUI {
                     tempQuiz.setChoices(questionChoices);
                     tempQuiz.setCorrectAnswer(correctAnswer);
                     tempQuiz.setNumOfChoices(4);
+                    
+                    // Add the question to the quiz
+                    ArrayList<Question> questions = new ArrayList<>();
+                    Question question = new Question(quizQuestion, correctAnswer - 1, questionChoices, 4);
+                    questions.add(question);
+                    tempQuiz = new Quiz(questions);
+                    
+                    // Set the quiz to the module
+                    tempModule.setQuiz(tempQuiz);
+                    
+                    // Add the module to an ArrayList
+                    ArrayList<Module> modules = new ArrayList<>();
+                    modules.add(tempModule);
+                    
+                    // Create arrays for other required parameters
+                    ArrayList<Review> reviews = new ArrayList<>();
+                    ArrayList<Results> results = new ArrayList<>();
+                    
                     //Set variables to method
                     Course newCourse = new Course();
                     
@@ -333,6 +347,10 @@ public class CourseUI {
                     newCourse.setCourseID(UUID.randomUUID());
                     newCourse.setDateCreated(courseDate);
                     newCourse.setDifficulty(courseDifficulty);
+                    newCourse.setModules(modules);
+                    newCourse.setReviews(reviews);
+                    newCourse.setUserResults(results);
+                    
                     courseList.addCourse(newCourse);
                     DataWriter.saveCourses();
                     makeCourse = true;
@@ -361,7 +379,61 @@ public class CourseUI {
                                 System.out.println("\nWhat would you like to do:\n\n1. Edit Course details\n2. Edit Module \n3. Add Lesson to a Module \n(or enter 'b' to go back)");
                                 String courseDetailsOrModule = input.next();
                                 if (courseDetailsOrModule.equals("1")) {
-                                 //Filler
+                                    // Implement course details editing
+                                    Course courseToEdit = courseList.getCourseByCourseTitle(editCourseChoice);
+                                    if (courseToEdit == null) {
+                                        System.out.println("Course not found. Please try again.");
+                                        continue;
+                                    }
+                                    
+                                    boolean editingCourseDetails = true;
+                                    while (editingCourseDetails) {
+                                        System.out.println("\n*** Edit Course Details ***\n");
+                                        System.out.println("Current details:");
+                                        System.out.println("1. Title: " + courseToEdit.getTitle());
+                                        System.out.println("2. Language: " + courseToEdit.getLanguage());
+                                        System.out.println("3. Difficulty: " + courseToEdit.getDifficulty());
+                                        System.out.println("4. Summary: " + courseToEdit.getSummary());
+                                        System.out.println("5. Date Created: " + courseToEdit.getDateCreated());
+                                        System.out.println("\nEnter the number of the detail you want to edit (or 'b' to go back):");
+                                        
+                                        String detailChoice = input.next();
+                                        input.nextLine(); // Clear the buffer
+                                        
+                                        if (detailChoice.equalsIgnoreCase("b")) {
+                                            editingCourseDetails = false;
+                                        } else if (detailChoice.equals("1")) {
+                                            System.out.println("Enter new title:");
+                                            String newTitle = input.nextLine();
+                                            courseToEdit.setTitle(newTitle);
+                                            System.out.println("Title updated successfully.");
+                                        } else if (detailChoice.equals("2")) {
+                                            System.out.println("Enter new language:");
+                                            String newLanguage = input.nextLine();
+                                            courseToEdit.setLanguage(newLanguage);
+                                            System.out.println("Language updated successfully.");
+                                        } else if (detailChoice.equals("3")) {
+                                            System.out.println("Enter new difficulty:");
+                                            String newDifficulty = input.nextLine();
+                                            courseToEdit.setDifficulty(newDifficulty);
+                                            System.out.println("Difficulty updated successfully.");
+                                        } else if (detailChoice.equals("4")) {
+                                            System.out.println("Enter new summary:");
+                                            String newSummary = input.nextLine();
+                                            courseToEdit.setSummary(newSummary);
+                                            System.out.println("Summary updated successfully.");
+                                        } else if (detailChoice.equals("5")) {
+                                            System.out.println("Enter new date created (MM/DD/YY):");
+                                            String newDate = input.nextLine();
+                                            courseToEdit.setDateCreated(newDate);
+                                            System.out.println("Date updated successfully.");
+                                        } else {
+                                            System.out.println("Invalid choice. Please try again.");
+                                        }
+                                        
+                                        // Save changes
+                                        DataWriter.saveCourses();
+                                    }
                                 } else if (courseDetailsOrModule.equals("2")) {
                                     editCourseContentOrModule = true;
         
@@ -385,7 +457,18 @@ public class CourseUI {
                                             System.out.println("\nWould you like to edit/add the:\n\n1. Prompt\n2. Lesson\n3. Quiz (or enter 'b' to go back)\n");
                                             String modulePLQ = input.next();
                                             input.nextLine();
-                                            Module tempModule = courseList.getCourseByCourseTitle(editCourseChoice).getCourseByModulePrompt(selectModuleToEdit);
+                                            Course targetCourse = courseList.getCourseByCourseTitle(editCourseChoice);
+                                            if (targetCourse == null) {
+                                                System.out.println("Course not found. Please try again.");
+                                                break;
+                                            }
+                                            
+                                            Module tempModule = targetCourse.getCourseByModulePrompt(selectModuleToEdit);
+                                            if (tempModule == null) {
+                                                System.out.println("Module not found. Please try again.");
+                                                break;
+                                            }
+                                            
                                             if (modulePLQ.equals("1")) {
                                              //Filler
                                              System.out.println("Enter the new Module Prompt:\n");
@@ -499,21 +582,11 @@ public class CourseUI {
                                             for(int j=0;j<tempCourse.getModules().size();++j) {
                                                 if(tempCourse.getModules().get(j).getPrompt().equalsIgnoreCase(tempModuleTitle)) {
                                                     Lesson tempLesson = new Lesson(tempLessonTitle, tempLessonContents, tempLessonNumber);
-                                                    /*ArrayList<Module> tempModules = tempCourse.getModules();
-                                                    ArrayList<Lesson> tempLessons = tempModule.getLessons();
-                                                    for(int k=0;k<tempModules.size();++k) {
-                                                        tempLessons.add(tempModules.get(j).getLessons().get(k));
-                                                    }
-                                                    tempModule.addLessons(tempLessons);
-                                                    tempModule.addLesson(tempLesson);
-                                                    tempModules.add(tempModule);
-                                                    //tempCourse.addModule(tempModule);
-                                                    tempCourse.setModules(tempModules);
-                                                    //tempCourse.setModules(tempModules);
-                                                    courseList.addCourse(tempCourse);*/
-                                                    tempModule.addLesson(tempLesson);
-                                                    //tempCourse.addModule(tempModule);
-                                                    //courseList.addCourse(tempCourse);
+                                                    // Add lesson to the correct module
+                                                    tempCourse.getModules().get(j).addLesson(tempLesson);
+                                                    // Save changes to courses
+                                                    DataWriter.saveCourses();
+                                                    System.out.println("Lesson successfully added to module!");
                                                     break;
                                                 }
                                             }
@@ -555,6 +628,9 @@ public class CourseUI {
                     }
                     else {
                         //Logout Method
+                        currentUser.logout(); // Call the logout method which saves user data
+                        DataWriter.saveUsers();
+                        DataWriter.saveCourses();
                         System.out.println("\nYou have successfully logged out!");
                         initialScreen();
                     }
@@ -656,6 +732,8 @@ public class CourseUI {
         ArrayList<Course> userCourses = null;
 
         userList.addUser(userUUID, realAccountType, firstName, lastName, chosenUserName, chosenPassword, chosenEmail, userBirthday, userCourses);
+        // Save the user data to JSON file
+        DataWriter.saveUsers();
         System.out.println("\n\n**** Create an Account ****\n\n");
     }
 

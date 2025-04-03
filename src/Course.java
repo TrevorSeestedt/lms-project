@@ -1,4 +1,4 @@
-package Tank;
+package src;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -199,7 +199,7 @@ public class Course {
 
     public Module getCourseByModulePrompt(String modulePrompt) {
         for(Module module : modules) {
-            if(module.getPrompt().equals(modulePrompt)) {
+            if(module.getTitle().equals(modulePrompt)) {
                 return module;
             }
         }
@@ -271,10 +271,14 @@ public class Course {
     }
 
     /**
-    *
+    * Adds a comment with a specified courseID
+    * @param comment The text of the comment to add
+    * @param courseID The ID of the course to which the comment belongs
     */
     public void addComment(String comment, String courseID) {
-        
+        if (courseID != null && courseID.equals(this.courseID.toString())) {
+            comments.add(comment);
+        }
     }
 
     /**

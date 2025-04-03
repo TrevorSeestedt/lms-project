@@ -1,4 +1,4 @@
-package Tank;
+package src;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -85,39 +85,45 @@ public class DataWriter extends DataConstants {
         courseDetails.put(COURSE_LANGUAGE, course.getLanguage());
         courseDetails.put(COURSE_DIFFICULTY, course.getDifficulty());
         courseDetails.put(COURSE_SUMMARY, course.getSummary());
+        
         // loop to add all reviews
         for(int i=0;i<course.getReviews().size();++i) {
             JSONObject jsonCourseReview = new JSONObject();
-            JSONObject jsonCourseReviewComment = new JSONObject();
-            JSONObject jsonCourseReviewRating = new JSONObject();
             Review tempReview = course.getReviews().get(i);
 
-            jsonCourseReviewComment.put(COURSE_COMMENTS, tempReview.getComment());
             jsonCourseReview.put(COURSE_REVIEW_ID, tempReview.getUUID().toString()); 
             jsonCourseReview.put(COURSE_RATING, tempReview.getRating2());
+            jsonCourseReview.put(COURSE_COMMENTS, tempReview.getComment());
             jsonCourseReview.put(COURSE_FIRST_NAME, tempReview.getFirstName());
             jsonCourseReview.put(COURSE_LAST_NAME, tempReview.getLastName());
             jsonCourseReviewsArray.add(jsonCourseReview);
-            jsonCourseReviewsArray.add(jsonCourseReviewComment);
-            jsonCourseReviewsArray.add(jsonCourseReviewRating);
         }
-        courseDetails.put(COURSE_REVIEW,jsonCourseReviewsArray);
+        courseDetails.put(COURSE_REVIEW, jsonCourseReviewsArray);
+        
         // looping thru to add all modules
         JSONArray jsonCourseModuleArray = new JSONArray();
-        JSONObject jsonCourseQuiz = new JSONObject();
         for(int i=0;i<course.getModules().size();++i) {
             JSONObject jsonCourseModule = new JSONObject();
             Module tempModule = course.getModules().get(i);
+            
+            jsonCourseModule.put(COURSE_MODULE_TITLE, tempModule.getTitle());
+            
+            // Add lessons for this module
+            JSONArray jsonModuleLessons = new JSONArray();
             for(int j=0;j<tempModule.getLessons().size();++j) {
                 Lesson tempLesson = tempModule.getLessons().get(j);
                 JSONObject jsonCourseLesson = new JSONObject();
                 jsonCourseLesson.put(COURSE_LESSON_TITLE, tempLesson.getTitle());
                 jsonCourseLesson.put(COURSE_LESSON_CONTENT, tempLesson.getContents());
                 jsonCourseLesson.put(COURSE_LESSON_NUMBER, tempLesson.getLessonNumber());
-                jsonLessonArray.add(jsonCourseLesson);
+                jsonModuleLessons.add(jsonCourseLesson);
             }
-            jsonCourseModule.put(COURSE_LESSONS, jsonLessonArray);
+            jsonCourseModule.put(COURSE_LESSONS, jsonModuleLessons);
+            
+            // Add quiz for this module
+            JSONObject jsonCourseQuiz = new JSONObject();
             Quiz tempQuiz = tempModule.getQuiz();
+            JSONArray jsonModuleQuestions = new JSONArray();
             for(int k=0;k<tempQuiz.getQuestions().size();++k) {
                 Question tempQuestion = tempQuiz.getQuestions().get(k);
                 JSONObject jsonCourseQuestion = new JSONObject();
@@ -127,34 +133,33 @@ public class DataWriter extends DataConstants {
                 jsonCourseQuestion.put(COURSE_ANSWER_C, tempQuestion.getChoices().get(2));
                 jsonCourseQuestion.put(COURSE_ANSWER_D, tempQuestion.getChoices().get(3));
                 jsonCourseQuestion.put(COURSE_CORRECT_ANSWER, tempQuestion.getCorrectAnswer());
-                jsonQuestionArray.add(jsonCourseQuestion);
+                jsonModuleQuestions.add(jsonCourseQuestion);
             }
-            jsonCourseQuiz.put(COURSE_QUESTIONS,jsonQuestionArray);
+            jsonCourseQuiz.put(COURSE_QUESTIONS, jsonModuleQuestions);
             jsonCourseModule.put(COURSE_QUIZZES, jsonCourseQuiz);
-            //jsonCourseModule.put(COURSE_GRADE, json)
             jsonCourseModuleArray.add(jsonCourseModule);
         }
         courseDetails.put(COURSE_MODULES, jsonCourseModuleArray);
 
-
         // loop to add userResults and everything with userResults
         JSONArray jsonCourseUserResultsArray = new JSONArray();
-        JSONArray jsonCoursesUserResultsGrades = new JSONArray();
         for(int i=0;i<course.getUserResults().size();++i) {
             JSONObject jsonCourseUserResults = new JSONObject();
             Results tempResults = course.getUserResults().get(i);
-            //jsonCourseUserResults.put(COURSE_USER_ID, tempResults.getUUID().toString());
             jsonCourseUserResults.put(COURSE_USER_ID, tempResults.getUUID().toString());
+            
+            // Store grades directly as an array
+            JSONArray gradesArray = new JSONArray();
             ArrayList<Double> tempGrades = tempResults.getGrades();
-            JSONObject jsonCourseGrades = new JSONObject();
             for(int j=0;j<tempGrades.size();++j) {
-                jsonCourseGrades.put(COURSE_GRADE, tempGrades.get(i));
+                gradesArray.add(tempGrades.get(j));
             }
-            jsonCoursesUserResultsGrades.add(jsonCourseUserResults);
-            jsonCoursesUserResultsGrades.add(jsonCourseGrades);
+            jsonCourseUserResults.put(COURSE_GRADE, gradesArray);
+            
+            jsonCourseUserResultsArray.add(jsonCourseUserResults);
         }
-        jsonCourseUserResultsArray.add(jsonCoursesUserResultsGrades);
         courseDetails.put(COURSE_USER_RESULTS, jsonCourseUserResultsArray);
+        
         return courseDetails;
     }
 }

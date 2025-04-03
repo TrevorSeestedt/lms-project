@@ -1,4 +1,4 @@
-package Tank;
+package src;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -67,12 +67,15 @@ public class RegisteredUserTest {
     public void testGetCourseByCourseTitle() {
         ArrayList<Course> currentCourses = new ArrayList<>();
         currentCourses.add(course);
+        
+        // Create a test user with the courses
+        RegisteredUser testUser = new Student("student", "Test", "User", "testuser", "password", "test@email.com", "01/01/2000", currentCourses);
 
-        Course expectedCourse = RegisteredUser.getCourseByCourseTitle("Math");
+        Course expectedCourse = testUser.getCourseByCourseTitle("Math");
         assertNotNull(expectedCourse);
         assertEquals(course, expectedCourse);
 
-        expectedCourse = RegisteredUser.getCourseByCourseTitle("Does not exist");
+        expectedCourse = testUser.getCourseByCourseTitle("Does not exist");
         assertNull(expectedCourse);
     }
 }

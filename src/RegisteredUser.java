@@ -1,17 +1,16 @@
-package Tank;
+package src;
 
 import java.util.ArrayList;
 import java.util.UUID;
 
 public abstract class RegisteredUser {
-    private RegisteredUser user;
     private String firstName;
     private String lastName;
     private String username;
     private String password;
     private UUID userID;
     private String userType;
-    private static ArrayList<Course> currentCourses = new ArrayList<Course>();
+    private ArrayList<Course> currentCourses = new ArrayList<Course>();
     private String DOB;
     private String userEmail;
     private double grades;
@@ -119,7 +118,7 @@ public abstract class RegisteredUser {
     * @param comment a String a user uses to write out their views on the course.
     */
     public void addReview(Course course, double rating, String comment) {
-        Review newReview = new Review(rating, comment, user, course);
+        Review newReview = new Review(rating, comment, this, course);
         course.addReview(newReview);
     }
 
@@ -283,7 +282,7 @@ public abstract class RegisteredUser {
         this.currentCourses = currentCourses;
     }
 
-    public static Course getCourseByCourseTitle(String courseTitle) {
+    public Course getCourseByCourseTitle(String courseTitle) {
         for(Course course : currentCourses) {
             if(course.getTitle().equals(courseTitle)) {
                 return course;

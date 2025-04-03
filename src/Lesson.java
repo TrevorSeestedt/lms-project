@@ -1,4 +1,4 @@
-package Tank;
+package src;
 
 public class Lesson {
     private String title;

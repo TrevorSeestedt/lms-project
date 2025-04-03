@@ -1,4 +1,4 @@
-package Tank;
+package src;
 
 import java.util.UUID;
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ public class Student extends RegisteredUser {
     * @param currentCourses an array of the courses the use is currently enrolled in.
     * @param grades a double value of the student's grades after completing assignments
     */
-    public Student(UUID userID, String type, String firstName, String lastName, String username, String password, String email, String DOB, ArrayList<Course> currentCourses) {
+    public Student(UUID userID, String type, String firstName, String lastName, String username, String password, String email, String DOB, ArrayList<Course> currentCourses, double grades) {
         setUUID(userID);
         setType(type);
         setFirstName(firstName);
@@ -28,8 +28,15 @@ public class Student extends RegisteredUser {
         setUserEmail(email);
         setUserDOB(DOB);
         setCurrentCourses(currentCourses);
+        setGrades(grades);
     }
 
+    /**
+    * Overloaded constructor without grades parameter (default grades to 0.0)
+    */
+    public Student(UUID userID, String type, String firstName, String lastName, String username, String password, String email, String DOB, ArrayList<Course> currentCourses) {
+        this(userID, type, firstName, lastName, username, password, email, DOB, currentCourses, 0.0);
+    }
 
     /**
     * Student class for new students and sets their information as well as creating a random UUID for them.
@@ -43,7 +50,7 @@ public class Student extends RegisteredUser {
     * @param currentCourses an array of the courses the use is currently enrolled in.
     * @param grades a double value of the student's grades after completing assignments
     */
-    public Student(String type, String firstName, String lastName, String username, String password, String email, String DOB, ArrayList<Course> currentCourses) {
+    public Student(String type, String firstName, String lastName, String username, String password, String email, String DOB, ArrayList<Course> currentCourses, double grades) {
         setUUID(UUID.randomUUID());
         setType(type);
         setFirstName(firstName);
@@ -53,6 +60,14 @@ public class Student extends RegisteredUser {
         setUserEmail(email);
         setUserDOB(DOB);
         setCurrentCourses(currentCourses);
+        setGrades(grades);
+    }
+
+    /**
+    * Overloaded constructor without grades parameter (default grades to 0.0)
+    */
+    public Student(String type, String firstName, String lastName, String username, String password, String email, String DOB, ArrayList<Course> currentCourses) {
+        this(type, firstName, lastName, username, password, email, DOB, currentCourses, 0.0);
     }
 
     /**
@@ -75,10 +90,12 @@ public class Student extends RegisteredUser {
         setPassword(password);
         setUserEmail(email);
         setUserDOB(DOB);
+        setGrades(0.0); // Default to 0.0 for new students
     }
 
     /**
-    * @return a null value
+    * Check the grades for this student
+    * @return the grades object for this student
     */
     public Grades checkGrades() {
         return null;

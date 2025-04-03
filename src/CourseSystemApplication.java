@@ -1,4 +1,4 @@
-package Tank;
+package src;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -14,13 +14,8 @@ public class CourseSystemApplication {
     * Method checks if the user's username is within the userlist, if it is, then it returns true. If not, it returns false.
     * @param username Login name belonging to the user.
     * @param password String required to confirmr the username belongs to the use who tries to login with it.
+    * @return true if login successful, false otherwise
     */
-    /*public RegisteredUser Login(String username, String password) {
-        //TODO - have to include password somehow
-        currentUser = userList.Login(username, password);
-        return currentUser;
-    }*/
-
     public boolean login(String username, String password) {
         boolean ret = false;
         for(RegisteredUser u : userList.getUsers()) {
@@ -32,8 +27,6 @@ public class CourseSystemApplication {
         return ret;
     }
 
-
-
     /**
     * The method Gets an instance of the required parameters to sign up and saves a user using DataWriter.
     * @param userID UUID that is connected to this user.
@@ -44,18 +37,11 @@ public class CourseSystemApplication {
     * @param password The password the user uses to login.
     * @param email The electronic mailing address of the user.
     * @param DOB The date the user was born.
-    * @param grades The grades the user has gotten.
     */
     public void signUp(UUID userID, String type, String firstName, String lastName, String username, String password, String email, String DOB) {
         UserList.getInstance().addUser(userID, type, firstName, lastName, username, password, email, DOB, myCourses);
         DataWriter.saveUsers();
     }
-
-    /*public double viewGrade(Grades Grades) {
-        return 0.0;
-        Grades.Grades().getGrade();
-        getGrade();
-    }*/
 
     /**
     * loops through the course array list and prints out the grade for each course until the int i equals the maximum index of the array.
@@ -116,39 +102,77 @@ public class CourseSystemApplication {
     * @param course The modules lessons and quizes that will be used to teach a student.
     * @param review User's rating, thoughts and comments about this course.
     */
-    public void RemoveReview(Course course, Review review) {
+    public void removeReview(Course course, Review review) {
         course.removeReview(review);
     }
 
     /**
-    * 
+    * Method to allow user to take a quiz and calculate score
     * @param quiz A graded assignment for the user to answer a question.
     */
-
     public void takeQuiz(Quiz quiz) {
         int score = 0;
-        for(int i=0;i<quiz.getQuestions().size();++i) {
-            String quesitonString = quiz.questionStrings().get(i);
-        }
-        /*for(int i=0; i<quiz.getQuestions().size(); i++) {
-            for(int j=0; j<quiz.getCorrectAnswer().size(); j++) {
-                String question = quiz.getQuestions().get(i).toString();
-            System.out.println("Question " + (i+1) + ": " +question);
-            System.out.print("Your answer (a, b, c, or d): ");
-            String answer = input.next();
+        
+        for(int i=0; i<quiz.getQuestions().size(); i++) {
+            Question question = quiz.getQuestions().get(i);
+            System.out.println("Question " + (i+1) + ": " + question.getPrompt());
+            
+            // Display answer choices
+            ArrayList<String> choices = question.getChoices();
+            for (int j = 0; j < choices.size(); j++) {
+                System.out.println((j+1) + ". " + choices.get(j));
             }
-        }*/
+            
+            System.out.print("Your answer (1-" + choices.size() + "): ");
+            int userAnswer = -1;
+            try {
+                userAnswer = Integer.parseInt(input.nextLine());
+                // Convert to 0-indexed
+                userAnswer -= 1;
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Skipping question.");
+                continue;
+            }
+            
+            // Check if answer is correct (answer is 0-indexed)
+            if (userAnswer == question.getCorrectAnswer()) {
+                score++;
+                System.out.println("Correct!");
+            } else {
+                System.out.println("Incorrect. The correct answer was: " + 
+                    (question.getCorrectAnswer() + 1) + ". " + 
+                    choices.get(question.getCorrectAnswer()));
+            }
+        }
 
-        System.out.println("Quiz complete. Your score is "+score+" out of "+quiz.getQuestions().size()+"!");
+        System.out.println("Quiz complete. Your score is " + score + " out of " + quiz.getQuestions().size() + "!");
     }
 
     /**
-    * @param module 
+    * Method to take a module including lessons and quiz
+    * @param module The module to be taken by the user
     */
     public void takeModule(Module module) {
-        //don't see a take module section in module
-        //Module.module().
-
+        // Display lessons in the module
+        System.out.println("Module: " + module.getTitle());
+        System.out.println("\nLessons:");
+        
+        ArrayList<Lesson> lessons = module.getLessons();
+        for (int i = 0; i < lessons.size(); i++) {
+            Lesson lesson = lessons.get(i);
+            System.out.println("\nLesson " + lesson.getLessonNumber() + ": " + lesson.getTitle());
+            System.out.println(lesson.getContents());
+            
+            System.out.println("\nPress Enter to continue to the next lesson...");
+            input.nextLine();
+        }
+        
+        System.out.println("\nAll lessons completed! Now it's time for the quiz.");
+        System.out.println("Press Enter to start the quiz...");
+        input.nextLine();
+        
+        // Take the quiz for this module
+        takeQuiz(module.getQuiz());
     }
 
     /**
@@ -166,16 +190,4 @@ public class CourseSystemApplication {
     public void setCurrentUser(RegisteredUser currentUser) {
         this.currentUser = currentUser;
     }
-
-  /* Possible method for printing lessons
-  public ArrayList<Lesson> getLessonsInOrder() {
-    ArrayList<Lesson> lessonsInOrder = new ArrayList<>();
-    for (int i = 0; i < Lesson.; i++) {
-        lessonsInOrder.add(new Lesson((i + 1) + ". " + lessons.get(i).getName()));
-    }
-    return lessonsInOrder;
-    
-} */
-
-
 }

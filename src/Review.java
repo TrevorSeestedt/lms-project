@@ -1,4 +1,4 @@
-package Tank;
+package src;
 
 import java.util.UUID;
 
@@ -24,13 +24,17 @@ public class Review {
         setComment(comment);
         setUser(user);
         setCourse(course);
+        // Also set the string representation of the rating for consistency
+        setRating2(String.valueOf(rating));
     }
 
     /**
     * Method which sets the rating, comment, and the user that reviewed.
-    * @param rating double value that shows how someone views the quality of the course
+    * @param rating string value that shows how someone views the quality of the course
     * @param comment a String to put user thoughts about a course into words.
-    * @param user has the user's registration information, UUID, and the information of if they are a student or author.
+    * @param userID the UUID of the user who created the review
+    * @param firstname first name of the user
+    * @param lastname last name of the user
     */
     public Review(String rating, String comment, UUID userID, String firstname, String lastname) {
         setRating2(rating);
@@ -38,15 +42,36 @@ public class Review {
         setUUID(userID);
         setFirstName(firstname);
         setLastName(lastname);
+        
+        // Try to parse the rating as a double if possible
+        try {
+            double ratingValue = Double.parseDouble(rating);
+            this.rating = ratingValue;
+        } catch (NumberFormatException e) {
+            // Default to 0.0 if parsing fails
+            this.rating = 0.0;
+        }
     }
 
     /**
-    *
-    * @param courseRating
-    * @param courseComment
-    * @param userID
+    * Constructor for just rating, comment and userID
+    * @param courseRating rating as a string
+    * @param courseComment comment text
+    * @param userID user's UUID
     */
     public Review(String courseRating, String courseComment, UUID userID) {
+        setRating2(courseRating);
+        setComment(courseComment);
+        setUUID(userID);
+        
+        // Try to parse the rating as a double if possible
+        try {
+            double ratingValue = Double.parseDouble(courseRating);
+            this.rating = ratingValue;
+        } catch (NumberFormatException e) {
+            // Default to 0.0 if parsing fails
+            this.rating = 0.0;
+        }
     }
 
     /**
@@ -93,7 +118,7 @@ public class Review {
     }
 
     /**
-    * Method that gets a rating made by a user
+    * Method that gets a rating made by a user as a double
     * @return it returns the current value of what is in rating.
     */
     public double getRating() {
@@ -105,22 +130,34 @@ public class Review {
     * @param rating double value that represents how a user feels about a course.
     */
     public void setRating(double rating) {
-        course.setRating(rating);
+        this.rating = rating;
+        if (this.course != null) {
+            this.course.setRating(rating);
+        }
     }
 
     /**
-    * toString to list the name of a course, how it was rated, and what comments was made by a user.
-    * @return String of the title of the course
-    *         String of the rating the course was given by a user.
-    *         String of the comments made by the user.
+    * Gets the rating as a string
+    * @return rating as a string
     */
-
     public String getRating2() {
         return this.rating2;
     }
 
+    /**
+    * Sets the rating as a string and attempts to update numeric rating
+    * @param rating rating as a string
+    */
     public void setRating2(String rating) {
         this.rating2 = rating;
+        
+        // Try to parse the rating as a double if possible
+        try {
+            double ratingValue = Double.parseDouble(rating);
+            this.rating = ratingValue;
+        } catch (NumberFormatException e) {
+            // Keep existing value if parsing fails
+        }
     }
 
     public String getFirstName() {
@@ -146,8 +183,6 @@ public class Review {
     public void setUUID(UUID userID) {
         this.userID = userID;
     }
-
-
 
     public String toString() {
         return "\nRating: " + this.getRating2() + "\nUser Comments: " + this.getComment() + "\nUser ID: " + this.getUUID() + "\nFirst Name: " + this.getFirstName() + "\nLast Name: "+ this.getLastName();

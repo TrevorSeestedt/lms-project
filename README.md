@@ -8,7 +8,7 @@ This is a Java-based Learning Management System (LMS) application that allows us
 - Command line interface or terminal
 
 ## Project Structure
-- `Tank/` - Source files
+- `src/` - Source files
 - `json/` - JSON data files for users and courses
 - `lib/` - External libraries:
   - json-simple-1.1.1.jar - JSON parsing
@@ -20,20 +20,20 @@ This is a Java-based Learning Management System (LMS) application that allows us
 Navigate to the project root directory and compile all Java files:
 
 ```bash
-javac -cp "lib/*" Tank/*.java
+javac -cp "lib/*" src/*.java
 ```
 
 ### 2. Run the Application
 Once compiled, run the application using:
 
 ```bash
-java -cp ".:lib/*" Tank.CourseUI
+java -cp ".:lib/*" src.CourseUI
 ```
 
 For Windows, use semicolons instead of colons in the classpath:
 
 ```bash
-java -cp ".;lib/*" Tank.CourseUI
+java -cp ".;lib/*" src.CourseUI
 ```
 
 ### 3. Using the Application

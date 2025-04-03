@@ -1,8 +1,59 @@
-package Tank;
+package src;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class DataConstants {
-    //users
+    // Template files (examples)
+    protected static final String USER_TEMPLATE_FILE = "usersExample.json";
+    protected static final String COURSE_TEMPLATE_FILE = "coursesExample.json";
+    
+    // Working files (will be created)
     protected static final String USER_FILE_NAME = "json/users.json";
+    protected static final String COURSE_FILE_NAME = "json/course.json";
+    
+    // Check if working files exist and create them from templates if they don't
+    static {
+        try {
+            // Create json directory if it doesn't exist
+            Files.createDirectories(Paths.get("json"));
+            
+            // Check if users.json exists, if not, copy from template
+            File userFile = new File(USER_FILE_NAME);
+            if (!userFile.exists()) {
+                File templateFile = new File(USER_TEMPLATE_FILE);
+                if (templateFile.exists()) {
+                    Files.copy(templateFile.toPath(), userFile.toPath());
+                } else {
+                    // Create empty JSON array if template doesn't exist
+                    try (FileWriter writer = new FileWriter(userFile)) {
+                        writer.write("[]");
+                    }
+                }
+            }
+            
+            // Check if course.json exists, if not, copy from template
+            File courseFile = new File(COURSE_FILE_NAME);
+            if (!courseFile.exists()) {
+                File templateFile = new File(COURSE_TEMPLATE_FILE);
+                if (templateFile.exists()) {
+                    Files.copy(templateFile.toPath(), courseFile.toPath());
+                } else {
+                    // Create empty JSON array if template doesn't exist
+                    try (FileWriter writer = new FileWriter(courseFile)) {
+                        writer.write("[]");
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error initializing data files: " + e.getMessage());
+        }
+    }
+    
+    //users
     protected static final String USER_ID = "userID";
     protected static final String USER_TYPE = "type";
     protected static final String USER_FIRST_NAME = "first_name";
@@ -14,7 +65,6 @@ public class DataConstants {
 
 
     // Courses section 
-    protected static final String COURSE_FILE_NAME = "json/course.json";
     protected static final String COURSE_ID = "authorID";
     protected static final String COURSE_TITLE = "course";
     protected static final String COURSE_DATE_CREATED = "created";

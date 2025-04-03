@@ -1,1 +1,49 @@
-[]
+[
+    {
+        "authorID": "00000000-0000-0000-0000-000000000001",
+        "course": "Introduction to Programming",
+        "created": "01/01/2023",
+        "language": "Java",
+        "difficulty": "Beginner",
+        "summary": "A comprehensive introduction to programming concepts using Java.",
+        "modules": [
+            {
+                "title": "Getting Started",
+                "lessons": [
+                    {
+                        "lessonNumber": 1,
+                        "lessonTitle": "Setting Up Your Environment",
+                        "content": "This lesson covers how to set up your Java development environment."
+                    }
+                ],
+                "quiz": {
+                    "quizQuestions": [
+                        {
+                            "question": "What is the command to compile a Java program?",
+                            "answerA": "java",
+                            "answerB": "javac",
+                            "answerC": "compile",
+                            "answerD": "run",
+                            "correctAnswer": 2
+                        }
+                    ]
+                }
+            }
+        ],
+        "review": [
+            {
+                "userID": "00000000-0000-0000-0000-000000000002",
+                "rating": 5,
+                "comment": "Great course for beginners!",
+                "firstName": "Example",
+                "lastName": "Student"
+            }
+        ],
+        "userResults": [
+            {
+                "userID": "00000000-0000-0000-0000-000000000002",
+                "grade": [90.0]
+            }
+        ]
+    }
+]

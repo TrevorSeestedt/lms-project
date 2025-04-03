@@ -1,4 +1,4 @@
-package Tank;
+package src;
 
 import java.io.FileReader;
 import java.util.ArrayList;
@@ -9,6 +9,36 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 public class DataLoader extends DataConstants{
+    /**
+     * Safe method to get String from JSON object
+     */
+    private static String getStringValue(JSONObject json, String key) {
+        Object value = json.get(key);
+        if (value == null) return "";
+        return value.toString();
+    }
+    
+    /**
+     * Safe method to get int value from JSON object
+     */
+    private static int getIntValue(JSONObject json, String key, int defaultValue) {
+        Object value = json.get(key);
+        if (value == null) return defaultValue;
+        
+        if (value instanceof Long) {
+            return ((Long) value).intValue();
+        } else if (value instanceof Integer) {
+            return (Integer) value;
+        } else if (value instanceof String) {
+            try {
+                return Integer.parseInt((String) value);
+            } catch (NumberFormatException e) {
+                return defaultValue;
+            }
+        }
+        return defaultValue;
+    }
+    
     //users section 
     public static ArrayList<RegisteredUser> getUsers() {
         ArrayList<RegisteredUser> users = new ArrayList<RegisteredUser>();
@@ -20,14 +50,14 @@ public class DataLoader extends DataConstants{
 
             for(int i=0; i < usersJSON.size(); i++) {
                 JSONObject registeredUserJSON = (JSONObject)usersJSON.get(i); 
-                UUID userID = UUID.fromString((String)registeredUserJSON.get(USER_ID));
-                String type = (String)registeredUserJSON.get(USER_TYPE);
-                String firstName = (String)registeredUserJSON.get(USER_FIRST_NAME);
-                String lastName = (String)registeredUserJSON.get(USER_LAST_NAME);
-                String username = (String)registeredUserJSON.get(USER_USERNAME);
-                String password = (String)registeredUserJSON.get(USER_PASSWORD);
-                String email = (String)registeredUserJSON.get(USER_EMAIL);
-                String DOB = (String)registeredUserJSON.get(USER_DOB);
+                UUID userID = UUID.fromString(getStringValue(registeredUserJSON, USER_ID));
+                String type = getStringValue(registeredUserJSON, USER_TYPE);
+                String firstName = getStringValue(registeredUserJSON, USER_FIRST_NAME);
+                String lastName = getStringValue(registeredUserJSON, USER_LAST_NAME);
+                String username = getStringValue(registeredUserJSON, USER_USERNAME);
+                String password = getStringValue(registeredUserJSON, USER_PASSWORD);
+                String email = getStringValue(registeredUserJSON, USER_EMAIL);
+                String DOB = getStringValue(registeredUserJSON, USER_DOB);
 
                 if (type.equalsIgnoreCase("author")) {
                     users.add(new Author(userID, type, firstName, lastName, username, password, email, DOB));
@@ -56,37 +86,44 @@ public class DataLoader extends DataConstants{
             for (int i=0; i < coursesJSON.size(); i++) {
                 JSONObject courseJSON = (JSONObject) coursesJSON.get(i);
 
-                UUID courseID = UUID.fromString((String)courseJSON.get(COURSE_ID));
-                String courseTitle = (String)courseJSON.get(COURSE_TITLE);
-                String courseCreated =(String)courseJSON.get(COURSE_DATE_CREATED);
-                String courseLanguage = (String)courseJSON.get(COURSE_LANGUAGE);
+                UUID courseID = UUID.fromString(getStringValue(courseJSON, COURSE_ID));
+                String courseTitle = getStringValue(courseJSON, COURSE_TITLE);
+                String courseCreated = getStringValue(courseJSON, COURSE_DATE_CREATED);
+                String courseLanguage = getStringValue(courseJSON, COURSE_LANGUAGE);
 
-                Author courseAuthor = (Author)UserList.getInstance().getUserByUUID(courseID);
+                // Use the author ID from the course data (this may need adjustment based on how authors are stored)
+                Author courseAuthor = null;
+                for(RegisteredUser user : UserList.getInstance().getUsers()) {
+                    if(user.getType().equalsIgnoreCase("author")) {
+                        courseAuthor = (Author)user;
+                        break; // Use the first author for now - this should be improved to match correct author
+                    }
+                }
 
-                String courseDifficulty = (String)courseJSON.get(COURSE_DIFFICULTY);
+                String courseDifficulty = getStringValue(courseJSON, COURSE_DIFFICULTY);
                 
                 //parse review 
                 JSONArray reviewJSON = (JSONArray) courseJSON.get(COURSE_REVIEW);
                 ArrayList<Review> reviews = new ArrayList<>();
                 for (int j = 0; j < reviewJSON.size(); j++) {
                     JSONObject reviewsJSON = (JSONObject) reviewJSON.get(j);
-                    UUID userID = UUID.fromString((String)reviewsJSON.get(USER_ID));
-                    String courseRating = (String)reviewsJSON.get(COURSE_RATING);
-                    String courseComment = (String)reviewsJSON.get(COURSE_COMMENTS);
-                    String courseFirstName = (String)reviewsJSON.get(COURSE_FIRST_NAME);
-                    String courseLastName = (String)reviewsJSON.get(COURSE_LAST_NAME);
+                    UUID userID = UUID.fromString(getStringValue(reviewsJSON, USER_ID));
+                    String courseRating = getStringValue(reviewsJSON, COURSE_RATING);
+                    String courseComment = getStringValue(reviewsJSON, COURSE_COMMENTS);
+                    String courseFirstName = getStringValue(reviewsJSON, COURSE_FIRST_NAME);
+                    String courseLastName = getStringValue(reviewsJSON, COURSE_LAST_NAME);
                     Review review = new Review(courseRating, courseComment, userID, courseFirstName, courseLastName); 
                     reviews.add(review);
                 }
 
-                String courseSummary = (String)courseJSON.get(COURSE_SUMMARY);
+                String courseSummary = getStringValue(courseJSON, COURSE_SUMMARY);
                 
                 //parse modules 
                 JSONArray moduleJSON = (JSONArray) courseJSON.get(COURSE_MODULES);
                 ArrayList<Module> modules = new ArrayList<>();
                 for (int j = 0; j < moduleJSON.size(); j++) {
                     JSONObject modulesJSON = (JSONObject) moduleJSON.get(j);
-                    String moduleTitle = (String) modulesJSON.get(COURSE_MODULE_TITLE);
+                    String moduleTitle = getStringValue(modulesJSON, COURSE_MODULE_TITLE);
 
                     //parse lessons
                     JSONArray lessonJSON = (JSONArray) modulesJSON.get(COURSE_LESSONS);
@@ -94,14 +131,13 @@ public class DataLoader extends DataConstants{
                     for (int k = 0; k < lessonJSON.size(); k++) {
                         JSONObject lessonsJSON = (JSONObject) lessonJSON.get(k);
                         
-                        String courseLessonNumber = (String) lessonsJSON.get(COURSE_LESSON_NUMBER);
-                        String courseLessonTitle = (String) lessonsJSON.get(COURSE_LESSON_TITLE);
-                        String courseLessonContent = (String) lessonsJSON.get(COURSE_LESSON_CONTENT);
+                        String courseLessonNumber = getStringValue(lessonsJSON, COURSE_LESSON_NUMBER);
+                        String courseLessonTitle = getStringValue(lessonsJSON, COURSE_LESSON_TITLE);
+                        String courseLessonContent = getStringValue(lessonsJSON, COURSE_LESSON_CONTENT);
 
                         Lesson lesson = new Lesson(courseLessonTitle, courseLessonContent, courseLessonNumber);   
                         lessons.add(lesson);
                     }
-                    //change here
 
                     JSONObject quizJSON = (JSONObject) modulesJSON.get(COURSE_QUIZZES);
                     
@@ -112,15 +148,16 @@ public class DataLoader extends DataConstants{
                     for (int l = 0; l < questionJSON.size(); l++) {
                         JSONObject questionsJSON = (JSONObject) questionJSON.get(l);
                         
-                        String courseQuestion  = (String) questionsJSON.get(COURSE_QUESTION_PROMPT);
+                        String courseQuestion = getStringValue(questionsJSON, COURSE_QUESTION_PROMPT);
 
                         ArrayList<String> choices = new ArrayList<>();
-                        String courseAnswerA = (String) questionsJSON.get(COURSE_ANSWER_A);
-                        String courseAnswerB = (String) questionsJSON.get(COURSE_ANSWER_B);
-                        String courseAnswerC = (String) questionsJSON.get(COURSE_ANSWER_C);
-                        String courseAnswerD = (String) questionsJSON.get(COURSE_ANSWER_D);
-                        String correctAnswerNumber = (String) questionsJSON.get(COURSE_CORRECT_ANSWER);
-                        int courseCorrectAnswer = Integer.parseInt(correctAnswerNumber);
+                        String courseAnswerA = getStringValue(questionsJSON, COURSE_ANSWER_A);
+                        String courseAnswerB = getStringValue(questionsJSON, COURSE_ANSWER_B);
+                        String courseAnswerC = getStringValue(questionsJSON, COURSE_ANSWER_C);
+                        String courseAnswerD = getStringValue(questionsJSON, COURSE_ANSWER_D);
+                        
+                        // Get the correct answer as an integer
+                        int courseCorrectAnswer = getIntValue(questionsJSON, COURSE_CORRECT_ANSWER, 1);
 
                         //manually adding course answers to array list choices
                         choices.add(courseAnswerA);
@@ -142,10 +179,61 @@ public class DataLoader extends DataConstants{
 
                 for (int j = 0; j < resultJSON.size(); j++) {
                     JSONObject resultsJSON = (JSONObject) resultJSON.get(j);
-                    UUID userID = UUID.fromString((String)resultsJSON.get(USER_ID));
+                    UUID userID = UUID.fromString(getStringValue(resultsJSON, USER_ID));
 
                     //parse through grade
-                    ArrayList<Double> grades = (ArrayList<Double>)resultsJSON.get(COURSE_GRADE);
+                    ArrayList<Double> grades = new ArrayList<>();
+                    Object gradesObj = resultsJSON.get(COURSE_GRADE);
+                    
+                    // Handle different possible JSON structures for grades
+                    if (gradesObj instanceof ArrayList) {
+                        // Direct ArrayList
+                        grades = (ArrayList<Double>) gradesObj;
+                    } else if (gradesObj instanceof JSONArray) {
+                        // JSON Array
+                        JSONArray gradesArray = (JSONArray) gradesObj;
+                        for (int k = 0; k < gradesArray.size(); k++) {
+                            Object gradeObj = gradesArray.get(k);
+                            if (gradeObj instanceof Double) {
+                                grades.add((Double) gradeObj);
+                            } else if (gradeObj instanceof Long) {
+                                grades.add(((Long) gradeObj).doubleValue());
+                            } else if (gradeObj instanceof JSONObject) {
+                                Object grade = ((JSONObject) gradeObj).get(COURSE_GRADE);
+                                if (grade instanceof Double) {
+                                    grades.add((Double) grade);
+                                } else if (grade instanceof Long) {
+                                    grades.add(((Long) grade).doubleValue());
+                                } else if (grade instanceof String) {
+                                    try {
+                                        grades.add(Double.parseDouble((String) grade));
+                                    } catch (NumberFormatException e) {
+                                        grades.add(0.0);
+                                    }
+                                }
+                            } else if (gradeObj instanceof String) {
+                                try {
+                                    grades.add(Double.parseDouble((String) gradeObj));
+                                } catch (NumberFormatException e) {
+                                    grades.add(0.0);
+                                }
+                            }
+                        }
+                    } else if (gradesObj instanceof JSONObject) {
+                        // Single grade as JSONObject
+                        Object grade = ((JSONObject) gradesObj).get(COURSE_GRADE);
+                        if (grade instanceof Double) {
+                            grades.add((Double) grade);
+                        } else if (grade instanceof Long) {
+                            grades.add(((Long) grade).doubleValue());
+                        } else if (grade instanceof String) {
+                            try {
+                                grades.add(Double.parseDouble((String) grade));
+                            } catch (NumberFormatException e) {
+                                grades.add(0.0);
+                            }
+                        }
+                    }
 
                     Results result = new Results(userID, grades);
                     results.add(result);
@@ -160,6 +248,7 @@ public class DataLoader extends DataConstants{
         }
         return courses;
     }
+
     //checker
     public static void main(String[] args) {
         ArrayList<RegisteredUser> users = DataLoader.getUsers();
@@ -186,7 +275,6 @@ public class DataLoader extends DataConstants{
             System.out.println("Course Author: "+ course.getAuthor());
             System.out.println("Course Difficulty: "+ course.getDifficulty());
             System.out.println("Course Summary: "+ course.getSummary());
-            System.out.println("Course Title: "+ course.getTitle());
             
             for (int i = 0; i < course.getModules().size(); i++) {
                 course.getModules().get(i);
@@ -213,9 +301,5 @@ public class DataLoader extends DataConstants{
                 System.out.println(course.getUserResults().get(i).toString());
             }
         }
-
-        //username variable = "john";
-        //password variable = "cox";
-        //CourseUI.run();
     }  
 }

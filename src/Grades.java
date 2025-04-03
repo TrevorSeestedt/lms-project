@@ -1,4 +1,4 @@
-package Tank;
+package src;
 
 public class Grades {
     private Student student;

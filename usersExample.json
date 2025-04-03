@@ -1,1 +1,22 @@
-[]
+[
+    {
+        "userID": "00000000-0000-0000-0000-000000000001",
+        "type": "Author",
+        "first_name": "Example",
+        "last_name": "Author",
+        "username": "example_author",
+        "password": "password123",
+        "email": "author@example.com",
+        "DOB": "01/01/1990"
+    },
+    {
+        "userID": "00000000-0000-0000-0000-000000000002",
+        "type": "Student",
+        "first_name": "Example",
+        "last_name": "Student",
+        "username": "example_student",
+        "password": "password123",
+        "email": "student@example.com",
+        "DOB": "01/01/2000"
+    }
+]

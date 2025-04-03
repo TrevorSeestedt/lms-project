@@ -1,4 +1,4 @@
-package Tank;
+package src;
 
 import java.util.UUID;
 import java.util.ArrayList;

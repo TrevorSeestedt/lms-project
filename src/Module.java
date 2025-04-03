@@ -1,9 +1,10 @@
-package Tank;
+package src;
 
 import java.util.ArrayList;
 
 public class Module {
     private String prompt;
+    private String title;
     private ArrayList<Lesson> lessons = new ArrayList<>();
     private Quiz quiz;
     private double grade = 0.0;
@@ -25,8 +26,25 @@ public class Module {
     */
     public Module(String prompt, ArrayList<Lesson> lessons, Quiz quiz) {
         setPrompt(prompt);
+        setTitle(prompt); // Using prompt as title for backward compatibility
         addLessons(lessons);
         setQuiz(quiz);
+    }
+
+    /**
+    * Gets the title for this module.
+    * @return accesses the string title for this module.
+    */
+    public String getTitle() {
+        return this.title != null ? this.title : this.prompt; // Fall back to prompt if title is null
+    }
+
+    /**
+    * Sets the title for this module.
+    * @param title changes the title for this module if it has been altered.
+    */
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     /**
@@ -120,7 +138,7 @@ public class Module {
     }
 
     public String toString() {
-        return "Module Prompt: " + this.getPrompt() + "\nModule Grade: " + this.getGrade();
+        return "Module: " + this.getTitle() + "\nModule Grade: " + this.getGrade();
     }
     
 }
