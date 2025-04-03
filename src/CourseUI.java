@@ -441,11 +441,15 @@ public class CourseUI {
                                      while (!editModule) {
                                      System.out.println("\n*** Edit Module ***\n\n");
                                       //Print modules
-                                      for(int i=0;i<courseList.getCourses().size();++i) {
-                                        Course tempCourse = courseList.getCourses().get(i);
-                                        for(int j=0;j<tempCourse.getModules().size();++j) {
-                                            System.out.println(tempCourse.getModules().get(j).getPrompt());
-                                        }
+                                      // Get the selected course first
+                                      Course selectedCourse = courseList.getCourseByCourseTitle(editCourseChoice);
+                                      if (selectedCourse == null) {
+                                          System.out.println("Course not found. Please try again.");
+                                          break;
+                                      }
+                                      // Print only modules from the selected course
+                                      for(int j=0; j < selectedCourse.getModules().size(); j++) {
+                                          System.out.println(selectedCourse.getModules().get(j).getPrompt());
                                       }
                                      System.out.println("\n\nEnter the title of the module you would like to edit (or enter 'b' to go back):");
                                      String selectModuleToEdit = input.next();
@@ -539,14 +543,19 @@ public class CourseUI {
                                     boolean addLesson = false;
 
                                     while(!addLesson) {
-                                        for(int i=0;i<courseList.getCourses().size();++i) {
-                                            Course tempCourse = courseList.getCourses().get(i);
-                                            for(int j=0;j<tempCourse.getModules().size();++j) {
-                                                Module tempModule = tempCourse.getModules().get(j);
-                                                for(int k=0;k<tempModule.getLessons().size();++k) {
-                                                    System.out.println(" - " + tempModule.getLessons().get(k).getTitle());
-                                                }
-                                                System.out.println(tempModule.getPrompt());
+                                        // Get the selected course first
+                                        Course selectedCourse = courseList.getCourseByCourseTitle(editCourseChoice);
+                                        if (selectedCourse == null) {
+                                            System.out.println("Course not found. Please try again.");
+                                            break;
+                                        }
+                                        
+                                        // Print only modules and lessons from the selected course
+                                        for(int j=0; j < selectedCourse.getModules().size(); j++) {
+                                            Module tempModule = selectedCourse.getModules().get(j);
+                                            System.out.println(tempModule.getPrompt());
+                                            for(int k=0; k < tempModule.getLessons().size(); k++) {
+                                                System.out.println(" - " + tempModule.getLessons().get(k).getTitle());
                                             }
                                         }
                                         System.out.println("Enter the Title of the Module you would like to add a lesson to\n(or enter 'b' to go back)");
@@ -556,16 +565,20 @@ public class CourseUI {
                                             addLesson = true;
                                             break;
                                         }
+                                        
+                                        // Find the module in the selected course only
                                         Module tempModule = new Module();
-                                        for(int i=0;i<courseList.getCourses().size();++i) {
-                                            Course tempCourse = courseList.getCourses().get(i);
-                                            for(int j=0;j<tempCourse.getModules().size();++j) {
-                                                if(tempCourse.getModules().get(j).getPrompt().equals(tempModuleTitle)) {
-                                                    tempModule = tempCourse.getModules().get(i);
-                                                    break;
-                                                }
+                                        for(int j=0; j < selectedCourse.getModules().size(); j++) {
+                                            if(selectedCourse.getModules().get(j).getPrompt().equals(tempModuleTitle)) {
+                                                tempModule = selectedCourse.getModules().get(j);
+                                                break;
                                             }
-                                            //tempModule = courseList.getCourseByCourseTitle(editCourseChoice).getModules().get(i);
+                                        }
+                                        
+                                        // Check if module was found
+                                        if(tempModule.getPrompt() == null) {
+                                            System.out.println("Module not found in this course. Please try again.");
+                                            continue;
                                         }
                                         
                                         System.out.println("Enter the title of the new lesson you would like to add");
@@ -577,32 +590,22 @@ public class CourseUI {
                                         System.out.println("Enter the lesson number of the new lesson you would like to add");
                                         String tempLessonNumber = input.nextLine();
 
-                                        for(int i=0;i<courseList.getCourses().size();++i) {
-                                            Course tempCourse = courseList.getCourses().get(i);
-                                            for(int j=0;j<tempCourse.getModules().size();++j) {
-                                                if(tempCourse.getModules().get(j).getPrompt().equalsIgnoreCase(tempModuleTitle)) {
-                                                    Lesson tempLesson = new Lesson(tempLessonTitle, tempLessonContents, tempLessonNumber);
-                                                    // Add lesson to the correct module
-                                                    tempCourse.getModules().get(j).addLesson(tempLesson);
-                                                    // Save changes to courses
-                                                    DataWriter.saveCourses();
-                                                    System.out.println("Lesson successfully added to module!");
-                                                    break;
-                                                }
-                                            }
-                                        }
+                                        Lesson tempLesson = new Lesson(tempLessonTitle, tempLessonContents, tempLessonNumber);
+                                        // Add lesson to the module
+                                        tempModule.addLesson(tempLesson);
+                                        // Save changes to courses
+                                        DataWriter.saveCourses();
+                                        System.out.println("Lesson successfully added to module!");
+
                                         System.out.println("New Modules and Lessons");
-                                        for(int i=0;i<courseList.getCourses().size();++i) {
-                                            Course tempCourse = courseList.getCourses().get(i);
-                                            for(int j=0;j<tempCourse.getModules().size();++j) {
-                                                Module module = tempCourse.getModules().get(j);
-                                                System.out.println(module.getPrompt());
-                                                for(int k=0;k<module.getLessons().size();++k) {
-                                                    System.out.println(" - " + module.getLessons().get(k));
-                                                }
+                                        // Display updated modules and lessons from the selected course
+                                        for(int j=0; j < selectedCourse.getModules().size(); j++) {
+                                            Module module = selectedCourse.getModules().get(j);
+                                            System.out.println(module.getPrompt());
+                                            for(int k=0; k < module.getLessons().size(); k++) {
+                                                System.out.println(" - " + module.getLessons().get(k).getTitle());
                                             }
                                         }
-                                        
 
                                         addLesson = true;
                                     }
